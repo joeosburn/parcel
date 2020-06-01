@@ -959,13 +959,31 @@ describe('html', function() {
     assert(html.includes('document.write("Hello world")'));
   });
 
-  it('should correctly bundle loaders for nested dynamic imports', async function() {
+  it.only('should correctly bundle loaders for nested dynamic imports', async function() {
     let b = await bundle(
       path.join(
         __dirname,
         '/integration/html-js-shared-dynamic-nested/index.html',
       ),
       {production: true, scopeHoist: true},
+    );
+
+    console.log(
+      b
+        .getChildBundles(b.getBundles().find(b => b.type === 'html'))
+        .map(b => [b.id, b.filePath]),
+    );
+    console.log(
+      b.getBundleGroupsContainingBundle(
+        b.getChildBundles(b.getBundles().find(b => b.type === 'html'))[0],
+      ),
+    );
+
+    console.log(
+      await outputFS.readFile(
+        b.getBundles().find(b => b.type === 'html').filePath,
+        'utf8',
+      ),
     );
 
     await assertBundles(b, [
